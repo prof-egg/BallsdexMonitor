@@ -1,21 +1,19 @@
 import { Events } from "discord.js"
 import { IEventFunc } from "../lib/handlers/file-handlers/EventHandler.js"
-import Debug from "../lib/util/Debug.js"
-import messageConfig from "../config/messages.json" assert { type: "json" }
-import clientconfig from "../config/client.json" assert { type: "json" }
-import FHH from "../lib/handlers/HandlerHub.js"
 import { SpawnManager } from "../lib/handlers/countryballs/SpawnHandler.js"
 
+const loggerID = "MessageHandler"
 const eventType = Events.MessageCreate
 
 const eventFunction: IEventFunc<typeof eventType> = async (client, loggerID, message) => {
-    
+
+    let guild = message.guild
+    if (!guild) return
+
     if (SpawnManager.monitorActive) {
         // Handle messages (copied from countryballs/cog.py)
         if (message.author.bot)
             return
-        let guild = message.guild
-        if (!guild) return
         // Guild cache and blacklist not setup
         //if guild.id not in self.spawn_manager.cache:
         //    return
@@ -23,18 +21,28 @@ const eventFunction: IEventFunc<typeof eventType> = async (client, loggerID, mes
         //    return
         SpawnManager.handleMessage(message)
     } else {
+
+        let ballsdexID = "999736048596816014"
+        let channelID = "1250283378222039070"
+        let msg = "A wild countryball appeared!"
+
+        // Debug.log(`NEW MESSAGE: ${message.author.username}: "${message.content}"`, loggerID)
+        // Debug.log(`Author is bot: ${message.author.bot}`, loggerID)
+        // Debug.log(`Author has ballsdex id: ${message.author.id == ballsdexID}`, loggerID)
+        // Debug.log(`Message is in channel: ${message.channelId == channelID}`, loggerID)
+        // Debug.log(`Message contains balls msg: ${message.content.includes(msg)}`, loggerID)
+
         // Look for activating monitor
         if (!message.author.bot)
             return
-        let guild = message.guild
-        if (!guild) return
         // Check for ballsdex id
-        if (message.author.id != "999736048596816014")
+        if (message.author.id != ballsdexID)
             return
         // Check for ballsdex channelID
-        if (message.channelId != "1250283378222039070")
+        if (message.channelId != channelID)
             return
-        if (message.content != "A wild countryball appeared!")
+        // Check for spawn message
+        if (!message.content.includes(msg))
             return
     
         // Slightly off, real bot uses the message just before the spawn message

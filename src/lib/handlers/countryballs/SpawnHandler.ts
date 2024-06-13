@@ -75,10 +75,13 @@ export class SpawnCooldown {
         // Make sure 10 seconds have passed since last handled message
         if (this.lastHandledMessage != null) {
             let seconds = (message.createdAt.getTime() - this.lastHandledMessage.createdAt.getTime()) / 1000
+            // console.log("Seconds passed: " + seconds)
             if (seconds < 10)
                 return false
             else 
                 this.lastHandledMessage = message
+        } else {
+            this.lastHandledMessage = message
         }
             
         // async with self.lock:
@@ -160,7 +163,7 @@ export class SpawnManager {
         }
 
         let delta = Math.floor((message.createdAt.getTime() - cooldown.Time.getTime()) / 1000)
-        
+
         // # change how the threshold varies according to the member count, while nuking farm servers
         let multiplier = 0
         if (!guild.memberCount)

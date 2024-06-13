@@ -1,11 +1,11 @@
-import { Client, GatewayIntentBits} from "discord.js";
+import { Client, GatewayIntentBits, Partials } from "discord.js";
 import * as dotenv from "dotenv";
 import Debug  from "./lib/util/Debug.js";
 import path from "node:path"
 import { loadKeepAlive } from "./scripts/keepAlive.js";
 import FHH from "./lib/handlers/HandlerHub.js";
 
-export const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers] });
+export const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent], partials: [Partials.Channel, Partials.Message] });
 
 // const client = new Client({ intents: [] });
 const loggerID = path.parse(import.meta.url).base

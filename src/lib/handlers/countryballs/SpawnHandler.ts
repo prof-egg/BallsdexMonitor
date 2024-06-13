@@ -124,7 +124,7 @@ export class SpawnCooldown {
     }
 
     public get MessageCache(): MessageCache {
-        return this.MessageCache
+        return this.messageCache
     }
 }
 

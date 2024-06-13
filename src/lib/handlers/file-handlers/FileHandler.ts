@@ -62,7 +62,7 @@ export default abstract class FileHandler<Key, TFileData, FileObject extends Gen
                     const sucessfulLoad = await this.loadGenericFile(`${folderPath}/${file}`)
                     if (sucessfulLoad) filesLoaded++
                 }
-                Debug.log(`Loaded ${filesLoaded} commands!`, loggerID)
+                Debug.log(`Loaded ${filesLoaded} files!`, loggerID)
             }
 
             // TODO: Change this code to use Promise.all()

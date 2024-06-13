@@ -1,13 +1,17 @@
 import Discord from "discord.js"
 import Util from "../../lib/util/Util.js";
 import { ECommandTags, ISlashCommandFunc } from "../../lib/handlers/file-handlers/CommandHandler.js";
-import { SpawnManager } from "../../lib/handlers/countryballs/SpawnHandler.js";
+import { SpawnCooldown, SpawnManager } from "../../lib/handlers/countryballs/SpawnHandler.js";
 import parseMilliseconds from "parse-ms";
+// import { client } from "../../client.js";
+// import clientconfig from "../../config/client.json" assert { type: "json" }
 
 // let cooldown = new SpawnCooldown(new Date(), await client.guilds.fetch(clientconfig.homeGuild.id))
 
 const commandFunction: ISlashCommandFunc = async (interaction, options, client, loggerID) => {
 
+    // SpawnManager.monitorActive = true
+    
     if (!SpawnManager.monitorActive)
         return interaction.reply({embeds: [Util.embedMessage("Inactive monitor, waiting for ball to spawn")]})
 

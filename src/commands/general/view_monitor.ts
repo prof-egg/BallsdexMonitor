@@ -6,14 +6,14 @@ import parseMilliseconds from "parse-ms";
 import { client } from "../../client.js";
 import clientconfig from "../../config/client.json" assert { type: "json" }
 
-let cooldown = new SpawnCooldown(new Date(), await client.guilds.fetch(clientconfig.homeGuild.id))
+// let cooldown = new SpawnCooldown(new Date(), await client.guilds.fetch(clientconfig.homeGuild.id))
 
 const commandFunction: ISlashCommandFunc = async (interaction, options, client, loggerID) => {
 
     if (!SpawnManager.monitorActive)
         return interaction.reply({embeds: [Util.embedMessage("Inactive monitor, waiting for ball to spawn")]})
-    
-    // let cooldown = SpawnManager.getGuildSpawnCooldown(interaction.guild?.id ?? "")
+
+    let cooldown = SpawnManager.getGuildSpawnCooldown(interaction.guild?.id ?? "")
     let guild = interaction.guild
     if (!cooldown || !guild)
         return interaction.reply({embeds: [Util.embedMessage("Unable to find monitor information")]})
@@ -38,8 +38,8 @@ const commandFunction: ISlashCommandFunc = async (interaction, options, client, 
             { name: "Guild MC Penalty", value: `${cooldown.hasMemberCountPenalty()}`, inline: true },
             { name: "Author NEC Penalty", value: `${cooldown.authorHasNotEnoughContributionPenalty(interaction)}`, inline: true },
             { name: "Guild NEUC Penalty", value: `${cooldown.hasNotEnoughUniqueChattersInCachePenalty()}`, inline: true },
-            { name: "Message Cache", value: `${(cooldown.MessageCache.length / cooldown.MessageCache.maxLength).toFixed(2)}%`, inline: true },
         )
+        .setFooter({ text: `Message Cache ${(cooldown.MessageCache.length / cooldown.MessageCache.maxLength * 100).toFixed(2)}%`})
     interaction.reply({embeds: [embed]})
 }
 

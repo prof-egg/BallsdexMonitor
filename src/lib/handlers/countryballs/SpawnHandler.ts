@@ -1,6 +1,7 @@
 import Discord from "discord.js"
 import { Random } from "../../util/Random.js"
 import Debug from "../../util/Debug.js"
+import parseMilliseconds from "parse-ms"
 
 const loggerID = "SpawnHandler" // Not in og code
 const SPAWN_CHANCE_RANGE = { LOWER_BOUND: 40, UPPER_BOUND: 55 }
@@ -39,6 +40,8 @@ export class SpawnCooldown {
 
     public constructor(time: Date, guild: Discord.Guild) {
         this.time = time
+
+        // Not in OG code
         this.guild = guild
     }
 
@@ -68,6 +71,16 @@ export class SpawnCooldown {
         //if self.lock.locked():
         //    return False
 
+        // Replacement code to make sure 10 seconds has passed
+        // Make sure 10 seconds have passed since last handled message
+        if (this.lastHandledMessage != null) {
+            let seconds = (message.createdAt.getTime() - this.lastHandledMessage.createdAt.getTime()) / 1000
+            if (seconds < 10)
+                return false
+            else 
+                this.lastHandledMessage = message
+        }
+            
         // async with self.lock:
         let amount = 1
         if (message.guild && (message.guild.memberCount < 5 || message.guild.memberCount > 1000))
@@ -90,8 +103,9 @@ export class SpawnCooldown {
     * NOTE: These werent here in og code but I 
     * added them for javascript neat purposes
     ***************************************************************************/
-    // NOT IN OG CODE, added this to make monitor viewing easier
+
     private guild: Discord.Guild
+    private lastHandledMessage: Discord.Message | null = null
 
     public hasMemberCountPenalty(): boolean {
         return this.guild.memberCount < 5 || this.guild.memberCount > 1000

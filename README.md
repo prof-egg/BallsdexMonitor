@@ -1,0 +1,1 @@
+Bot that simulates ballsdex calculations for private server.

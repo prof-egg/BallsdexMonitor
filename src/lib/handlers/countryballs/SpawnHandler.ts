@@ -110,6 +110,30 @@ export class SpawnCooldown {
     private guild: Discord.Guild
     private lastHandledMessage: Discord.Message | null = null
 
+    public async resetMessageCache(guild: Discord.Guild): Promise<void> {
+        Debug.log("Resetting message cache...", loggerID)
+
+        this.messageCache = new MessageCache(100)
+
+        let fetchedMessages: Discord.Message[] = [];
+
+        // Iterate over each text channel in the guild
+        let guildChannels = await guild.channels.fetch()
+        guildChannels.forEach(async (channel) => {
+            if (channel?.type == Discord.ChannelType.GuildText) {
+                const messages = await channel.messages.fetch({ limit: 100 });
+                messages.forEach((msg) => fetchedMessages.push(msg))
+            }
+        });
+
+        // Sort messages by timestamp in order of oldest to newest
+        fetchedMessages.sort((a, b) => a.createdTimestamp - b.createdTimestamp);
+
+        // Fill message cache from fetched messages
+        fetchedMessages.forEach((msg) => this.increase(msg))
+        Debug.log("Reset message cache complete!", loggerID)
+    }
+
     public hasMemberCountPenalty(): boolean {
         return this.guild.memberCount < 5 || this.guild.memberCount > 1000
     }
@@ -142,6 +166,10 @@ export class SpawnCooldown {
 
     public get MessageCache(): MessageCache {
         return this.messageCache
+    }
+
+    public get LastHandledMessage(): Discord.Message | null {
+        return this.lastHandledMessage
     }
 }
 
@@ -191,9 +219,12 @@ export class SpawnManager {
             // # wait for at least 10 minutes before spawning
             return
         
+        // Dont want to run the reset or spawn function
+        // since we dont need to spawn country balls ourselves
+        // and we match the simulated resets with the actual ballsdex resets
         // # spawn countryball
-        cooldown.reset(message.createdAt)
-        // await self.spawn_countryball(guild)
+        //cooldown.reset(message.createdAt)
+        //await self.spawn_countryball(guild)
     }
 
     // async def spawn_countryball(self, guild: discord.Guild):
@@ -210,6 +241,18 @@ export class SpawnManager {
     * easy monitor viewing
     ***************************************************************************/
     public static monitorActive = false;
+
+    /**
+     * WARNING: If a cooldown object does not exist, this will 
+     * create a new one, passing in the current time.
+     */
+    public static ensureGuildCooldown(guild: Discord.Guild): void {
+        let cooldown = this.cooldowns.get(guild.id)
+        if (!cooldown) {
+            cooldown = new SpawnCooldown(new Date(), guild)
+            this.cooldowns.set(guild.id, cooldown)
+        }
+    }
 
     public static getMultiplier(guild: Discord.Guild): number {
         

@@ -27,7 +27,9 @@ const commandFunction: ISlashCommandFunc = async (interaction, options, client, 
     // tslp = timeSinceLastSpawn
     let tslp = parseMilliseconds(interaction.createdAt.getTime() - cooldown.Time.getTime())
     // let intervalLeftString = ((its.minutes > 0) ? `${its.minutes}m ` : "") + `${its.seconds}s`
-    let intervalLeftString = `${its.minutes}m ${its.seconds}s`
+    let days = (its.days != 0) ? `${its.days}d ` : ""
+    let hours = (its.hours != 0) ? `${its.hours}h ` : ""
+    let intervalLeftString = `${days}${hours}${its.minutes}m ${its.seconds}s`
 
     const embed = Util.standardEmbedMessage("Ballsdex Monitor", description)
         .setFields(

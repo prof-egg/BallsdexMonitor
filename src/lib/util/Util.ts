@@ -8,6 +8,7 @@
 import Discord, { ColorResolvable } from "discord.js"
 import clientconfig from "../../config/client.json" assert { type: "json" }
 import colorconfig from "../../config/colors.json" assert { type: "json" }
+import ballsdexConfig from "../../config/ballsdex.json" assert { type: "json" }
 
 /**
  * The `Util` class provides random
@@ -68,5 +69,32 @@ export default class Util {
      */
     static emoji(client: Discord.Client, id: string): string | undefined {
         return client.emojis.cache.get(id)?.toString();
+    }
+
+    static isMessageBallsdexSpawnMessage(message: Discord.Message): boolean {
+        let ballsdexID = ballsdexConfig.ballsdexID
+        let channelID = ballsdexConfig.channelID
+        let msg = ballsdexConfig.message
+    
+        // Debug.log(`NEW MESSAGE: ${message.author.username}: "${message.content}"`, loggerID)
+        // Debug.log(`Author is bot: ${message.author.bot}`, loggerID)
+        // Debug.log(`Author has ballsdex id: ${message.author.id == ballsdexID}`, loggerID)
+        // Debug.log(`Message is in channel: ${message.channelId == channelID}`, loggerID)
+        // Debug.log(`Message contains balls msg: ${message.content.includes(msg)}`, loggerID)
+    
+        // Look for activating monitor
+        if (!message.author.bot)
+            return false
+        // Check for ballsdex id
+        if (message.author.id != ballsdexID)
+            return false
+        // Check for ballsdex channelID
+        if (message.channelId != channelID)
+            return false
+        // Check for spawn message
+        if (!message.content.includes(msg))
+            return false
+    
+        return true
     }
 }

@@ -3,6 +3,7 @@ import { IEventFunc } from "../lib/handlers/file-handlers/EventHandler.js"
 import { SpawnManager } from "../lib/handlers/countryballs/SpawnHandler.js"
 import Discord from "discord.js"
 import Debug from "../lib/util/Debug.js"
+import Util from "../lib/util/Util.js"
 
 const loggerID = "MessageHandler"
 const eventType = Events.MessageCreate
@@ -12,8 +13,12 @@ const eventFunction: IEventFunc<typeof eventType> = async (client, loggerID, mes
     let guild = message.guild
     if (!guild) return
 
+    // Manual override since now the bot caches messages
+    // on startup and finds the last ballspawn
+    SpawnManager.monitorActive = true
+
     if (!SpawnManager.monitorActive) {
-        if (!isMessageTargetMessage(message)) 
+        if (!Util.isMessageBallsdexSpawnMessage(message)) 
             return
 
         // Slightly off, real bot uses the message just before the spawn message
@@ -25,7 +30,7 @@ const eventFunction: IEventFunc<typeof eventType> = async (client, loggerID, mes
     }
 
     // Watch for ballsdex reset and mimic
-    if (isMessageTargetMessage(message)) {
+    if (Util.isMessageBallsdexSpawnMessage(message)) {
         let cooldown = SpawnManager.getGuildSpawnCooldown(guild.id)
         if (!cooldown) {
             Debug.logError("Tried to reset cooldown but was unable to find the guild cooldown object", loggerID)
@@ -48,32 +53,6 @@ const eventFunction: IEventFunc<typeof eventType> = async (client, loggerID, mes
     SpawnManager.handleMessage(message)
 }
 
-function isMessageTargetMessage(message: Discord.Message): boolean {
-    let ballsdexID = "999736048596816014"
-    let channelID = "1250283378222039070"
-    let msg = "A wild countryball appeared!"
-
-    // Debug.log(`NEW MESSAGE: ${message.author.username}: "${message.content}"`, loggerID)
-    // Debug.log(`Author is bot: ${message.author.bot}`, loggerID)
-    // Debug.log(`Author has ballsdex id: ${message.author.id == ballsdexID}`, loggerID)
-    // Debug.log(`Message is in channel: ${message.channelId == channelID}`, loggerID)
-    // Debug.log(`Message contains balls msg: ${message.content.includes(msg)}`, loggerID)
-
-    // Look for activating monitor
-    if (!message.author.bot)
-        return false
-    // Check for ballsdex id
-    if (message.author.id != ballsdexID)
-        return false
-    // Check for ballsdex channelID
-    if (message.channelId != channelID)
-        return false
-    // Check for spawn message
-    if (!message.content.includes(msg))
-        return false
-
-    return true
-}
 const eventData = {
     event: eventType,
     once: false

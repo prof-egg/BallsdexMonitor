@@ -15,7 +15,7 @@ const eventFunction: IEventFunc<typeof eventType> = async (client, loggerID, mes
 
     // Manual override since now the bot caches messages
     // on startup and finds the last ballspawn
-    SpawnManager.monitorActive = true
+    // SpawnManager.monitorActive = true
 
     if (!SpawnManager.monitorActive) {
         if (!Util.isMessageBallsdexSpawnMessage(message)) 

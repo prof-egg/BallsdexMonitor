@@ -1,7 +1,8 @@
 import Discord from "discord.js"
 import { Random } from "../../util/Random.js"
 import Debug from "../../util/Debug.js"
-import parseMilliseconds from "parse-ms"
+import ballsdexConfig from "../../../config/ballsdex.json" assert { type: "json" }
+import Util from "../../util/Util.js"
 
 const loggerID = "SpawnHandler" // Not in og code
 const SPAWN_CHANCE_RANGE = { LOWER_BOUND: 40, UPPER_BOUND: 55 }
@@ -119,18 +120,20 @@ export class SpawnCooldown {
 
         // Iterate over each text channel in the guild
         let guildChannels = await guild.channels.fetch()
-        guildChannels.forEach(async (channel) => {
+        for (let i = 0; i < guildChannels.size; i++) {
+            let channel = guildChannels.at(i)
             if (channel?.type == Discord.ChannelType.GuildText) {
                 const messages = await channel.messages.fetch({ limit: 100 });
                 messages.forEach((msg) => fetchedMessages.push(msg))
             }
-        });
+        };
 
         // Sort messages by timestamp in order of oldest to newest
         fetchedMessages.sort((a, b) => a.createdTimestamp - b.createdTimestamp);
+        Debug.log(`Sorted ${fetchedMessages.length} messages`, loggerID)
 
         // Fill message cache from fetched messages
-        fetchedMessages.forEach((msg) => this.increase(msg))
+        fetchedMessages.slice(0, 100).forEach((msg) => this.increase(msg))
         Debug.log("Reset message cache complete!", loggerID)
     }
 
@@ -246,12 +249,41 @@ export class SpawnManager {
      * WARNING: If a cooldown object does not exist, this will 
      * create a new one, passing in the current time.
      */
-    public static ensureGuildCooldown(guild: Discord.Guild): void {
+    public static async ensureGuildCooldown(guild: Discord.Guild): Promise<void> {
+
+        Debug.log("Ensuring guild cooldown...", loggerID)
+
         let cooldown = this.cooldowns.get(guild.id)
         if (!cooldown) {
-            cooldown = new SpawnCooldown(new Date(), guild)
-            this.cooldowns.set(guild.id, cooldown)
+            // Attempt time reset by looking for newest ball spawn
+            let ballsdexChannel = await guild.channels.fetch(ballsdexConfig.channelID) as Discord.GuildTextBasedChannel | null
+
+            // If error resort to current time
+            if (!ballsdexChannel) {
+                cooldown = new SpawnCooldown(new Date(), guild)
+                this.cooldowns.set(guild.id, cooldown)
+                return
+            }
+
+            // Sort messages and look for newest ball spawn
+            let messages = await ballsdexChannel.messages.fetch({ limit: 100 })
+            messages.sort((a, b) => b.createdTimestamp - a.createdTimestamp)
+            for (var i = 0; i < messages.size; i++) {
+                let testMsg = messages.at(i)
+                if (!testMsg) continue
+                if (Util.isMessageBallsdexSpawnMessage(testMsg)) {
+                    Debug.log("Spawn message detected", loggerID)
+                    cooldown = new SpawnCooldown(testMsg.createdAt, guild)
+                    break;
+                }
+            }
+
+            // Set cooldown
+            this.cooldowns.set(guild.id, cooldown ?? new SpawnCooldown(new Date(), guild))
+
+            Debug.log("Ensured guild cooldown", loggerID)
         }
+
     }
 
     public static getMultiplier(guild: Discord.Guild): number {

@@ -111,29 +111,53 @@ export class SpawnCooldown {
     private guild: Discord.Guild
     private lastHandledMessage: Discord.Message | null = null
 
-    public async resetMessageCache(guild: Discord.Guild): Promise<void> {
+    public async resetMessageCache(guild: Discord.Guild, lastSpawnMessage: Discord.Message): Promise<void> {
         Debug.log("Resetting message cache...", loggerID)
 
         this.messageCache = new MessageCache(100)
 
-        let fetchedMessages: Discord.Message[] = [];
+        let guildChannels = await guild.channels.fetch()
+        const fetchPromises: Promise<Discord.Collection<string, Discord.Message<true>>>[] = [];
 
         // Iterate over each text channel in the guild
-        let guildChannels = await guild.channels.fetch()
-        for (let i = 0; i < guildChannels.size; i++) {
-            let channel = guildChannels.at(i)
-            if (channel?.type == Discord.ChannelType.GuildText) {
-                const messages = await channel.messages.fetch({ limit: 100 });
-                messages.forEach((msg) => fetchedMessages.push(msg))
-            }
-        };
+        guildChannels.forEach((channel) => {
+            if (channel?.type === Discord.ChannelType.GuildText) 
+                // Push the promise to fetch messages into the array
+                fetchPromises.push(channel.messages.fetch({ limit: 100 }));
+        });
+
+        // Execute all fetch operations concurrently
+        const fetchedMessagesArray = await Promise.all(fetchPromises);
+        
+        // Combine all fetched messages into a single array
+        const fetchedMessages: Discord.Message[] = []
+        fetchedMessagesArray.forEach((collection) => {
+            collection.forEach((msg) => fetchedMessages.push(msg))
+        })
 
         // Sort messages by timestamp in order of oldest to newest
         fetchedMessages.sort((a, b) => a.createdTimestamp - b.createdTimestamp);
         Debug.log(`Sorted ${fetchedMessages.length} messages`, loggerID)
 
+        // Get two groups of arrays that surround the last spawn
+        let preSpawnMessages = fetchedMessages.filter((msg) => msg.createdTimestamp < lastSpawnMessage.createdTimestamp)
+        let postSpawnMessages = fetchedMessages.filter((msg) => msg.createdTimestamp > lastSpawnMessage.createdTimestamp)
+        Debug.log(`Pre-spawn messages: ${preSpawnMessages.length}`, loggerID)
+        Debug.log(`Post-spawn messages: ${postSpawnMessages.length}`, loggerID)
+
+        // Get the index of the first gaurenteed message to be picked up by the ballsdex bot
+        for (var firstMessageIndex = 1; firstMessageIndex < preSpawnMessages.length; firstMessageIndex++) 
+            if (preSpawnMessages[firstMessageIndex].createdTimestamp - preSpawnMessages[firstMessageIndex - 1].createdTimestamp > 10_000)
+                break;
+
+        // Simulate stuff
+        for (let i = firstMessageIndex; i < preSpawnMessages.length; i++)
+            this.increase(preSpawnMessages[i])
+        this.reset(lastSpawnMessage.createdAt)
+        for (let i = 0; i < postSpawnMessages.length; i++)
+            this.increase(postSpawnMessages[i])
+
         // Fill message cache from fetched messages
-        fetchedMessages.slice(0, 100).forEach((msg) => this.increase(msg))
         Debug.log("Reset message cache complete!", loggerID)
     }
 
@@ -245,45 +269,38 @@ export class SpawnManager {
     ***************************************************************************/
     public static monitorActive = false;
 
-    /**
-     * WARNING: If a cooldown object does not exist, this will 
-     * create a new one, passing in the current time.
-     */
-    public static async ensureGuildCooldown(guild: Discord.Guild): Promise<void> {
+    public static async getLatestBallSpawn(guild: Discord.Guild): Promise<Discord.Message | null> {
+        Debug.log("Getting latest ball spawn...", loggerID)
+        let ballsdexChannel = await guild.channels.fetch(ballsdexConfig.channelID) as Discord.GuildTextBasedChannel | null
 
-        Debug.log("Ensuring guild cooldown...", loggerID)
+        // If error resort to current time
+        if (!ballsdexChannel) {
+            Debug.logWarning("Unable to retrieve ballsdex channel", loggerID)
+            return null
+        }
+        
+        // Fetch and sort messages
+        let messages = await ballsdexChannel.messages.fetch({ limit: 100 })
+        messages.sort((a, b) => b.createdTimestamp - a.createdTimestamp)
 
-        let cooldown = this.cooldowns.get(guild.id)
-        if (!cooldown) {
-            // Attempt time reset by looking for newest ball spawn
-            let ballsdexChannel = await guild.channels.fetch(ballsdexConfig.channelID) as Discord.GuildTextBasedChannel | null
-
-            // If error resort to current time
-            if (!ballsdexChannel) {
-                cooldown = new SpawnCooldown(new Date(), guild)
-                this.cooldowns.set(guild.id, cooldown)
-                return
+        // Look for spawn
+        for (var i = 0; i < messages.size; i++) {
+            let testMsg = messages.at(i)
+            if (!testMsg) continue
+            if (Util.isMessageBallsdexSpawnMessage(testMsg)) {
+                Debug.log("Found ball spawn!", loggerID)
+                return testMsg
             }
-
-            // Sort messages and look for newest ball spawn
-            let messages = await ballsdexChannel.messages.fetch({ limit: 100 })
-            messages.sort((a, b) => b.createdTimestamp - a.createdTimestamp)
-            for (var i = 0; i < messages.size; i++) {
-                let testMsg = messages.at(i)
-                if (!testMsg) continue
-                if (Util.isMessageBallsdexSpawnMessage(testMsg)) {
-                    Debug.log("Spawn message detected", loggerID)
-                    cooldown = new SpawnCooldown(testMsg.createdAt, guild)
-                    break;
-                }
-            }
-
-            // Set cooldown
-            this.cooldowns.set(guild.id, cooldown ?? new SpawnCooldown(new Date(), guild))
-
-            Debug.log("Ensured guild cooldown", loggerID)
         }
 
+        Debug.logWarning("Unable to find ball spawn", loggerID)
+        return null
+    }
+
+    public static ensureGuildCooldown(guild: Discord.Guild, message?: Discord.Message): void {
+        let cooldown = this.cooldowns.get(guild.id)
+        if (!cooldown) 
+            this.cooldowns.set(guild.id, new SpawnCooldown(message?.createdAt ?? new Date(), guild))
     }
 
     public static getMultiplier(guild: Discord.Guild): number {

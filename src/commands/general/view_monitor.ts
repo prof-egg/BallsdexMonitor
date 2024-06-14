@@ -10,7 +10,7 @@ import parseMilliseconds from "parse-ms";
 
 const commandFunction: ISlashCommandFunc = async (interaction, options, client, loggerID) => {
 
-    // SpawnManager.monitorActive = true
+    SpawnManager.monitorActive = true
     
     if (!SpawnManager.monitorActive)
         return interaction.reply({embeds: [Util.embedMessage("Inactive monitor, waiting for ball to spawn")]})

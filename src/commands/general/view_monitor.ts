@@ -41,7 +41,7 @@ const commandFunction: ISlashCommandFunc = async (interaction, options, client, 
             { name: "Author NEC Penalty", value: `${cooldown.authorHasNotEnoughContributionPenalty(interaction)}`, inline: true },
             { name: "Guild NEUC Penalty", value: `${cooldown.hasNotEnoughUniqueChattersInCachePenalty()}`, inline: true },
         )
-        .setFooter({ text: `Message Cache ${(cooldown.MessageCache.length / cooldown.MessageCache.maxLength * 100).toFixed(2)}%`})
+        .setFooter({ text: `Message Cache: ${cooldown.MessageCache.length}/${cooldown.MessageCache.maxLength}`})
     interaction.reply({embeds: [embed]})
 }
 

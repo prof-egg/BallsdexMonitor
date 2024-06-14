@@ -16,9 +16,15 @@ const eventFunction: IEventFunc<typeof eventType> = async (client, loggerID, rea
 
     // Fill spawncooldown message cache for guild
     let homeGuild = await client.guilds.fetch(clientconfig.homeGuild.id)
-    await SpawnManager.ensureGuildCooldown(homeGuild)
-    let cooldown = SpawnManager.getGuildSpawnCooldown(clientconfig.homeGuild.id)
-    await cooldown?.resetMessageCache(homeGuild)
+    let msg = await SpawnManager.getLatestBallSpawn(homeGuild)
+    if (msg) {
+        SpawnManager.ensureGuildCooldown(homeGuild, msg)
+        let cooldown = SpawnManager.getGuildSpawnCooldown(clientconfig.homeGuild.id)
+        await cooldown?.resetMessageCache(homeGuild, msg) 
+        SpawnManager.monitorActive = true
+    } else {
+        Debug.logWarning("Unable to activate monitor", "ReadyEvent")
+    }
     
     // Set presence
     readyClient.user.setActivity(messageConfig.clientPresence);

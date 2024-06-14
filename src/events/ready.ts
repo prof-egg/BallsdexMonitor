@@ -16,7 +16,7 @@ const eventFunction: IEventFunc<typeof eventType> = async (client, loggerID, rea
 
     // Fill spawncooldown message cache for guild
     let homeGuild = await client.guilds.fetch(clientconfig.homeGuild.id)
-    SpawnManager.ensureGuildCooldown(homeGuild)
+    await SpawnManager.ensureGuildCooldown(homeGuild)
     let cooldown = SpawnManager.getGuildSpawnCooldown(clientconfig.homeGuild.id)
     await cooldown?.resetMessageCache(homeGuild)
     

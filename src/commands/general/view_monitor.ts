@@ -57,7 +57,7 @@ const commandFunction: ISlashCommandFunc = async (interaction, options, client, 
             { name: "Guild NEUC Penalty", value: `${cooldown.hasNotEnoughUniqueChattersInCachePenalty()}`, inline: true },
             { name: "Prime Yappers", value: primeYappersString, inline: true },
             { name: "Author Yap Contribution", value: `${authorMessages.length} message(s)`, inline: true },
-            { name: "Author Spam Contribution", value: `${authorMessages.filter((msgCache) => msgCache.authorID == interaction.user.id).length} message(s)`, inline: true },
+            { name: "Author Spam Contribution", value: `${authorMessages.filter((msgCache) => msgCache.messageContent.length < 5).length} message(s)`, inline: true },
         )
         .setFooter({ text: `Message Cache: ${cooldown.MessageCache.length}/${cooldown.MessageCache.maxLength}`})
     interaction.reply({embeds: [embed]})

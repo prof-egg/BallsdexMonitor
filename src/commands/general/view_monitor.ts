@@ -31,6 +31,19 @@ const commandFunction: ISlashCommandFunc = async (interaction, options, client, 
     let hours = (its.hours != 0) ? `${its.hours}h ` : ""
     let intervalLeftString = `${days}${hours}${its.minutes}m ${its.seconds}s`
 
+    // Get prime yappers
+    let arePrimeYapperEligible = cooldown.hasNotEnoughUniqueChattersInCachePenalty()
+    let yapperIds = [...(new Set(cooldown.MessageCache.map((cachedMessage) => cachedMessage.authorID)))]
+    let primeYappers = yapperIds.filter((authorID) => {
+        return !cooldown.authorHasNotEnoughContributionPenalty(authorID) && arePrimeYapperEligible
+    }).map((authorID) => {
+        return `<@${authorID}>`
+    })
+    let primeYappersString = (primeYappers.length > 0) ? primeYappers.join(", ") : "None"
+
+    // author messages
+    let authorMessages = cooldown.MessageCache.filter((msgCache) => msgCache.authorID == interaction.user.id)
+
     const embed = Util.standardEmbedMessage("Ballsdex Monitor", description)
         .setFields(
             { name: "Can Spawn In", value: intervalLeftString, inline: true },
@@ -40,8 +53,11 @@ const commandFunction: ISlashCommandFunc = async (interaction, options, client, 
             { name: "Guild Spam Messages", value: `${cooldown.getSpamMessageDetectedInCache()} message(s)`, inline: true },
             { name: "Cooldown Amount", value: `${cooldown.Amount} message(s)`, inline: true },
             { name: "Guild MC Penalty", value: `${cooldown.hasMemberCountPenalty()}`, inline: true },
-            { name: "Author NEC Penalty", value: `${cooldown.authorHasNotEnoughContributionPenalty(interaction)}`, inline: true },
+            { name: "Author NEC Penalty", value: `${cooldown.authorHasNotEnoughContributionPenalty(interaction.user.id)}`, inline: true },
             { name: "Guild NEUC Penalty", value: `${cooldown.hasNotEnoughUniqueChattersInCachePenalty()}`, inline: true },
+            { name: "Prime Yappers", value: primeYappersString, inline: true },
+            { name: "Author Yap Contribution", value: `${authorMessages.length} message(s)`, inline: true },
+            { name: "Author Spam Contribution", value: `${authorMessages.filter((msgCache) => msgCache.authorID == interaction.user.id).length} message(s)`, inline: true },
         )
         .setFooter({ text: `Message Cache: ${cooldown.MessageCache.length}/${cooldown.MessageCache.maxLength}`})
     interaction.reply({embeds: [embed]})

@@ -37,9 +37,9 @@ const eventFunction: IEventFunc<typeof eventType> = async (client, loggerID, mes
             message.channel.send("<@617427512653512744> an error occured, check the logs.")
             return 
         }
-        let messageUsedToReset = (cooldown.LastHandledMessage != null) ? cooldown.LastHandledMessage : message
+        // let messageUsedToReset = (cooldown.LastHandledMessage != null) ? cooldown.LastHandledMessage : message
         if (cooldown.LastHandledMessage == null) Debug.logWarning("Reset using ballsdex message instead of likely prompt message", loggerID)
-        cooldown.reset(messageUsedToReset.createdAt)
+        cooldown.reset(message.createdAt)
     }
 
     // Handle messages (copied from countryballs/cog.py)

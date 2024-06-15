@@ -26,20 +26,20 @@ const commandFunction: ISlashCommandFunc = async (interaction, options, client, 
     let yapDetails = yappers.map((yapper) => { 
         return { 
             name: yapper.name, 
-            msgLength: cooldown.getAuthorMessages(interaction.user.id).length, 
-            spamLength: cooldown.getAuthorMessages(interaction.user.id).map((cacheMsg) => {
+            msgLength: cooldown.getAuthorMessages(yapper.id).length, 
+            spamLength: cooldown.getAuthorMessages(yapper.id).filter((cacheMsg) => {
                 return cooldown.isMessageSpam(cacheMsg.messageContent)
             }).length
         }
     }).sort((a, b) => b.msgLength - a.msgLength)
     
     // Build embed where each object field gets an inline embed field
-    const embed = new EmbedBuilder()
+    const embed = Util.embedMessage(" ") // Use this to set color
         .setTitle("Ballsdex Message Cache")
         .setFields(
             { name: "Yappers", value: yapDetails.map((yapper) => yapper.name).join("\n"), inline: true },
-            { name: "Contribution", value: `${yapDetails.map((yapper) => yapper.msgLength).join("\n")} message(s)`, inline: true },
-            { name: "Spam", value: `${yapDetails.map((yapper) => yapper.spamLength).join("\n")} message(s)`, inline: true },
+            { name: "Contribution", value: `${yapDetails.map((yapper) => yapper.msgLength).join("\n")}`, inline: true },
+            { name: "Spam", value: `${yapDetails.map((yapper) => yapper.spamLength).join("\n")}`, inline: true },
         )
         .setFooter({ text: `Message Cache: ${cooldown.MessageCache.length}/${cooldown.MessageCache.maxLength}`})
 

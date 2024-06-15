@@ -169,8 +169,8 @@ export class SpawnCooldown {
         return this.messageCache.filter((cachedMessage) => cachedMessage.messageContent.length < 5).length
     }
 
-    public authorHasNotEnoughContributionPenalty(interaction: Discord.ChatInputCommandInteraction): boolean {
-        return (this.messageCache.filter((cachedMessage) => cachedMessage.authorID == interaction.user.id).length
+    public authorHasNotEnoughContributionPenalty(authorID: string): boolean {
+        return (this.messageCache.filter((cachedMessage) => cachedMessage.authorID == authorID).length
         / this.messageCache.maxLength < 0.4)
     }
 

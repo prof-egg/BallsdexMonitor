@@ -152,10 +152,12 @@ export class SpawnCooldown {
 
         // Simulate stuff
         for (let i = firstMessageIndex; i < preSpawnMessages.length; i++)
-            this.increase(preSpawnMessages[i])
+            if (SpawnManager.canMessageBeProcessed(preSpawnMessages[i]))
+                this.increase(preSpawnMessages[i])
         this.reset(lastSpawnMessage.createdAt)
         for (let i = 0; i < postSpawnMessages.length; i++)
-            this.increase(postSpawnMessages[i])
+            if (SpawnManager.canMessageBeProcessed(postSpawnMessages[i]))
+                this.increase(postSpawnMessages[i])
 
         // Fill message cache from fetched messages
         Debug.log("Reset message cache complete!", loggerID)
@@ -309,6 +311,10 @@ export class SpawnManager {
 
         Debug.logWarning("Unable to find ball spawn", loggerID)
         return null
+    }
+
+    public static canMessageBeProcessed(message: Discord.Message): boolean {
+        return !message.author.bot
     }
 
     public static ensureGuildCooldown(guild: Discord.Guild, message?: Discord.Message): void {

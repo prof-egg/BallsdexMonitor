@@ -10,18 +10,20 @@ import parseMilliseconds from "parse-ms";
 
 const commandFunction: ISlashCommandFunc = async (interaction, options, client, loggerID) => {
 
-    SpawnManager.monitorActive = true
-    
+    // Check for monitor
     if (!SpawnManager.monitorActive)
         return interaction.reply({embeds: [Util.embedMessage("Inactive monitor, waiting for ball to spawn")]})
 
+    // See if cooldown info exists for guild
     let cooldown = SpawnManager.getGuildSpawnCooldown(interaction.guild?.id ?? "")
     let guild = interaction.guild
     if (!cooldown || !guild)
         return interaction.reply({embeds: [Util.embedMessage("Unable to find monitor information")]})
 
+    // Explain shortened embed field titles
     let description = `\`MC\` stands for "Member Count," \`NEC\` stands for "Not Enough Contribution," and \`NEUC\` stands for "Not Enough Unique Chatters."`
 
+    // Parse the time into strings for "time since last spawn" and "can spawn in"
     // its = intervalTimeStuff
     let its = parseMilliseconds(600000 - (interaction.createdAt.getTime() - cooldown.Time.getTime()))
     // tslp = timeSinceLastSpawn
@@ -31,9 +33,10 @@ const commandFunction: ISlashCommandFunc = async (interaction, options, client, 
     let hours = (its.hours != 0) ? `${its.hours}h ` : ""
     let intervalLeftString = `${days}${hours}${its.minutes}m ${its.seconds}s`
 
-    // Get prime yappers
+    // Get prime yappers by checking if NEUC is false and any member has NEC false
+    // Parse the prime yappers into a string if there are any; else string is "None"
     let arePrimeYapperEligible = !cooldown.hasNotEnoughUniqueChattersInCachePenalty()
-    let yapperIds = [...(new Set(cooldown.MessageCache.map((cachedMessage) => cachedMessage.authorID)))]
+    let yapperIds = cooldown.getYappers().map((yapper) => yapper.id)
     let primeYappers = yapperIds.filter((authorID) => {
         return !cooldown.authorHasNotEnoughContributionPenalty(authorID) && arePrimeYapperEligible
     }).map((authorID) => {
@@ -42,8 +45,9 @@ const commandFunction: ISlashCommandFunc = async (interaction, options, client, 
     let primeYappersString = (primeYappers.length > 0) ? primeYappers.join(", ") : "None"
 
     // author messages
-    let authorMessages = cooldown.MessageCache.filter((msgCache) => msgCache.authorID == interaction.user.id)
+    let authorMessages = cooldown.getAuthorMessages(interaction.user.id)
 
+    // Build embed
     const embed = Util.standardEmbedMessage("Ballsdex Monitor", description)
         .setFields(
             { name: "Can Spawn In", value: intervalLeftString, inline: true },
@@ -57,9 +61,11 @@ const commandFunction: ISlashCommandFunc = async (interaction, options, client, 
             { name: "Guild NEUC Penalty", value: `${cooldown.hasNotEnoughUniqueChattersInCachePenalty()}`, inline: true },
             { name: "Prime Yappers", value: primeYappersString, inline: true },
             { name: "Author Yap Contribution", value: `${authorMessages.length} message(s)`, inline: true },
-            { name: "Author Spam Contribution", value: `${authorMessages.filter((msgCache) => msgCache.messageContent.length < 5).length} message(s)`, inline: true },
+            { name: "Author Spam Contribution", value: `${authorMessages.filter((msgCache) => cooldown.isMessageSpam(msgCache.messageContent)).length} message(s)`, inline: true },
         )
         .setFooter({ text: `Message Cache: ${cooldown.MessageCache.length}/${cooldown.MessageCache.maxLength}`})
+
+    // Send embed
     interaction.reply({embeds: [embed]})
 }
 

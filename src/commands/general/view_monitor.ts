@@ -32,7 +32,7 @@ const commandFunction: ISlashCommandFunc = async (interaction, options, client, 
     let intervalLeftString = `${days}${hours}${its.minutes}m ${its.seconds}s`
 
     // Get prime yappers
-    let arePrimeYapperEligible = cooldown.hasNotEnoughUniqueChattersInCachePenalty()
+    let arePrimeYapperEligible = !cooldown.hasNotEnoughUniqueChattersInCachePenalty()
     let yapperIds = [...(new Set(cooldown.MessageCache.map((cachedMessage) => cachedMessage.authorID)))]
     let primeYappers = yapperIds.filter((authorID) => {
         return !cooldown.authorHasNotEnoughContributionPenalty(authorID) && arePrimeYapperEligible

@@ -42,10 +42,13 @@ const eventFunction: IEventFunc<typeof eventType> = async (client, loggerID, mes
         cooldown.reset(message.createdAt)
     }
 
-    // Handle messages (copied from countryballs/cog.py)
-    if (message.author.bot)
+    // HANDLE MESSAGES (copied from countryballs/cog.py (more or less))
+    // This replaces the commented code
+    if (!SpawnManager.canMessageBeProcessed(message))
         return
     // NOTE: Guild cache and blacklist not setup
+    //if message.author.bot
+    //    return
     //if guild.id not in self.spawn_manager.cache:
     //    return
     //if guild.id in self.bot.blacklist_guild:

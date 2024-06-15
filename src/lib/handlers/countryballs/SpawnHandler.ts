@@ -65,7 +65,7 @@ export class SpawnCooldown {
         // # its property is that, once the max length is reached (100 for us),
         // # the oldest element is removed, thus we only have the last 100 messages in memory
         this.messageCache.push(
-            new CachedMessage(message.content, message.author.id)
+            new CachedMessage(message.content, message.author.id, message.author.displayName)
         )
 
         // More python code to deal with race conditions
@@ -161,12 +161,26 @@ export class SpawnCooldown {
         Debug.log("Reset message cache complete!", loggerID)
     }
 
+    public getYappers():  {id: string, name: string}[] {
+        return [...(new Map(this.messageCache.map((cachedMessage) => {
+            return [cachedMessage.authorID, cachedMessage.displayName]
+        })))].map((obj) => ({id: obj[0], name: obj[1]}))
+    }
+
+    public getAuthorMessages(authorID: string): CachedMessage[] {
+        return this.messageCache.filter((msgCache) => msgCache.authorID == authorID)
+    }
+
+    public isMessageSpam(message: string): boolean {
+        return message.length < 5
+    }
+
     public hasMemberCountPenalty(): boolean {
         return this.guild.memberCount < 5 || this.guild.memberCount > 1000
     }
 
     public getSpamMessageDetectedInCache(): number {
-        return this.messageCache.filter((cachedMessage) => cachedMessage.messageContent.length < 5).length
+        return this.messageCache.filter((cachedMessage) => this.isMessageSpam(cachedMessage.messageContent)).length
     }
 
     public authorHasNotEnoughContributionPenalty(authorID: string): boolean {
@@ -365,8 +379,10 @@ class MessageCache extends Array<CachedMessage> {
 class CachedMessage {
     public readonly messageContent: string
     public readonly authorID: string
-    public constructor(messageContent: string, authorID: string) {
+    public readonly displayName: string // Not part of original cache
+    public constructor(messageContent: string, authorID: string, displayName: string) {
         this.messageContent = messageContent
         this.authorID = authorID
+        this.displayName = displayName
     }
 }

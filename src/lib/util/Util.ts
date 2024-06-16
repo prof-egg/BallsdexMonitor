@@ -97,4 +97,35 @@ export default class Util {
     
         return true
     }
+
+    public static lerpHexColor(color1: string, color2: string, t: number): string {
+        // Remove '#' if present
+        color1 = color1.replace('#', '');
+        color2 = color2.replace('#', '');
+    
+        // Parse hex values to RGB
+        const r1 = parseInt(color1.substring(0, 2), 16);
+        const g1 = parseInt(color1.substring(2, 4), 16);
+        const b1 = parseInt(color1.substring(4, 6), 16);
+    
+        const r2 = parseInt(color2.substring(0, 2), 16);
+        const g2 = parseInt(color2.substring(2, 4), 16);
+        const b2 = parseInt(color2.substring(4, 6), 16);
+    
+        // Interpolate RGB components
+        const r = Math.round(r1 * (1 - t) + r2 * t);
+        const g = Math.round(g1 * (1 - t) + g2 * t);
+        const b = Math.round(b1 * (1 - t) + b2 * t);
+    
+        // Convert interpolated RGB back to hex
+        const interpolatedColor = `#${(r).toString(16).padStart(2, '0')}${(g).toString(16).padStart(2, '0')}${(b).toString(16).padStart(2, '0')}`;
+    
+        return interpolatedColor;
+    }
+
+    public static reverseLerp(start: number, end: number, interpolatedValue: number) {
+        // Calculate t
+        const t = (interpolatedValue - start) / (end - start);
+        return t;
+    }
 }

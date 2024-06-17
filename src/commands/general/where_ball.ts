@@ -47,7 +47,7 @@ const commandFunction: ISlashCommandFunc = async (interaction, options, client, 
         color = "#4d104f" // Dark purple
     else if (chance == 1)
         color = colorconfig.main // Cyan
-    else if (chance > 0 && chance < 1)
+    else if (chance >= 0 && chance < 1)
         color = Util.lerpHexColor("#FF0000", "#00FF00", chance);
     else 
         color = "#000000"

@@ -1,15 +1,9 @@
 import Discord, { ColorResolvable } from "discord.js"
 import Util from "../../lib/util/Util.js";
 import { ECommandTags, ISlashCommandFunc } from "../../lib/handlers/file-handlers/CommandHandler.js";
-import { SPAWN_CHANCE_RANGE, SpawnCooldown, SpawnManager } from "../../lib/handlers/countryballs/SpawnHandler.js";
+import { SpawnManager } from "../../lib/handlers/countryballs/SpawnHandler.js";
 import parseMilliseconds from "parse-ms";
 import colorconfig from "../../config/colors.json" assert { type: "json" }
-import Debug from "../../lib/util/Debug.js";
-
-// import { client } from "../../client.js";
-// import clientconfig from "../../config/client.json" assert { type: "json" }
-
-// let cooldown = new SpawnCooldown(new Date(), await client.guilds.fetch(clientconfig.homeGuild.id))
 
 const commandFunction: ISlashCommandFunc = async (interaction, options, client, loggerID) => {
 

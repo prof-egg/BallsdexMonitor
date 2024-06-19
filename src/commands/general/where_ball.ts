@@ -45,7 +45,7 @@ const commandFunction: ISlashCommandFunc = async (interaction, options, client, 
     let description = ` `
 
     // Get and parse time till guaranteed spawn
-    let maxMinutesTillSpawn = SpawnManager.calcMinutesTillAmount(guild, cooldown.Amount, SPAWN_CHANCE_RANGE.UPPER_BOUND)
+    let maxMinutesTillSpawn = SpawnManager.calcMinutesTillAmount(guild, cooldown.Amount - 0.125, SPAWN_CHANCE_RANGE.UPPER_BOUND)
     let maxMinutesParsed = parseMilliseconds(maxMinutesTillSpawn * 60 * 1000)
 
     // Get color of embed

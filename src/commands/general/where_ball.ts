@@ -1,7 +1,7 @@
 import Discord, { ColorResolvable } from "discord.js"
 import Util from "../../lib/util/Util.js";
 import { ECommandTags, ISlashCommandFunc } from "../../lib/handlers/file-handlers/CommandHandler.js";
-import { SpawnCooldown, SpawnManager } from "../../lib/handlers/countryballs/SpawnHandler.js";
+import { SPAWN_CHANCE_RANGE, SpawnCooldown, SpawnManager } from "../../lib/handlers/countryballs/SpawnHandler.js";
 import parseMilliseconds from "parse-ms";
 import colorconfig from "../../config/colors.json" assert { type: "json" }
 
@@ -30,16 +30,21 @@ const commandFunction: ISlashCommandFunc = async (interaction, options, client, 
     let hours = (its.hours != 0) ? `${its.hours}h ` : ""
     let intervalLeftString = `${days}${hours}${its.minutes}m ${its.seconds}s`
 
-    let lowerBoundPoints = SpawnManager.calcChance(interaction, false, cooldown)
-    let upperBoundPoints = SpawnManager.calcChance(interaction, true, cooldown)
+    let lowerBoundPoints = SpawnManager.calcChanceBound(interaction, false, cooldown)
+    let upperBoundPoints = SpawnManager.calcChanceBound(interaction, true, cooldown)
 
     // Calculate chance to spawn (from 0 to 1)
     let chance = 0
     if (cooldownMilliseconds < 0 && cooldown.Amount >= lowerBoundPoints && cooldown.Amount < upperBoundPoints) 
-        chance = Util.reverseLerp(lowerBoundPoints, upperBoundPoints, cooldown.Amount)
+        // Assuming next message will be worth 0.5 (FOR THIS SERVER ONLY)
+        chance = cooldown.calcSpawnChanceForNextMessage(interaction, 0.5)
     if (cooldown.Amount >= upperBoundPoints)
         chance = 1
     let description = `Chance to spawn next valid message: ${(chance * 100).toFixed(2)}%`
+
+    // Get and parse time till guaranteed spawn
+    let maxMinutesTillSpawn = SpawnManager.calcMinutesTillAmount(guild, cooldown.Amount, SPAWN_CHANCE_RANGE.UPPER_BOUND)
+    let maxMinutesParsed = parseMilliseconds(maxMinutesTillSpawn * 60 * 1000)
 
     // Get color of embed
     let color: string = ""
@@ -56,6 +61,8 @@ const commandFunction: ISlashCommandFunc = async (interaction, options, client, 
     const embed = Util.standardEmbedMessage("Where Ball", description)
         .setFields(
             { name: "Can Spawn In", value: intervalLeftString, inline: true },
+            { name: "Max Time till Ball", value: `${maxMinutesParsed.hours}h ${maxMinutesParsed.minutes}m`, inline: true},
+            { name: "Spawn Chance", value: `~${(chance * 100).toFixed(2)}%`, inline: true},
             { name: "Points to Spawn", value: `${lowerBoundPoints.toLocaleString()} - ${upperBoundPoints.toLocaleString()}`, inline: true },
             { name: "Cooldown Points", value: `${cooldown.Amount} message(s)`, inline: true },
         )

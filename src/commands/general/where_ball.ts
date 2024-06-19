@@ -4,6 +4,7 @@ import { ECommandTags, ISlashCommandFunc } from "../../lib/handlers/file-handler
 import { SPAWN_CHANCE_RANGE, SpawnCooldown, SpawnManager } from "../../lib/handlers/countryballs/SpawnHandler.js";
 import parseMilliseconds from "parse-ms";
 import colorconfig from "../../config/colors.json" assert { type: "json" }
+import Debug from "../../lib/util/Debug.js";
 
 // import { client } from "../../client.js";
 // import clientconfig from "../../config/client.json" assert { type: "json" }
@@ -36,16 +37,19 @@ const commandFunction: ISlashCommandFunc = async (interaction, options, client, 
     // Calculate chance to spawn (from 0 to 1)
     let chance = 0
     let certain = true
-    if (cooldownMilliseconds < 0 && cooldown.Amount >= lowerBoundPoints && cooldown.Amount < upperBoundPoints) 
+    if (cooldownMilliseconds < 0 && cooldown.Amount >= lowerBoundPoints && cooldown.Amount < upperBoundPoints) {
         // Assuming next message will be worth 0.5 (FOR THIS SERVER ONLY)
         certain = false
         chance = cooldown.calcSpawnChanceForNextMessage(interaction, 0.5)
+    }
     if (cooldown.Amount >= upperBoundPoints)
         chance = 1
     let description = ` `
 
     // Get and parse time till guaranteed spawn
-    let maxMinutesTillSpawn = SpawnManager.calcMinutesTillAmount(guild, cooldown.Amount - 0.125, SPAWN_CHANCE_RANGE.UPPER_BOUND)
+    let maxMinutesTillSpawn = 0
+    if (cooldown.Amount <= upperBoundPoints) 
+        maxMinutesTillSpawn = SpawnManager.calcMinutesTillAmount(guild, cooldown.Amount - 0.125, upperBoundPoints)
     let maxMinutesParsed = parseMilliseconds(maxMinutesTillSpawn * 60 * 1000)
 
     // Get color of embed

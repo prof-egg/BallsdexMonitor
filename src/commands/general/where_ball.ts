@@ -35,12 +35,14 @@ const commandFunction: ISlashCommandFunc = async (interaction, options, client, 
 
     // Calculate chance to spawn (from 0 to 1)
     let chance = 0
+    let certain = true
     if (cooldownMilliseconds < 0 && cooldown.Amount >= lowerBoundPoints && cooldown.Amount < upperBoundPoints) 
         // Assuming next message will be worth 0.5 (FOR THIS SERVER ONLY)
+        certain = false
         chance = cooldown.calcSpawnChanceForNextMessage(interaction, 0.5)
     if (cooldown.Amount >= upperBoundPoints)
         chance = 1
-    let description = `Chance to spawn next valid message: ${(chance * 100).toFixed(2)}%`
+    let description = ` `
 
     // Get and parse time till guaranteed spawn
     let maxMinutesTillSpawn = SpawnManager.calcMinutesTillAmount(guild, cooldown.Amount, SPAWN_CHANCE_RANGE.UPPER_BOUND)
@@ -62,7 +64,7 @@ const commandFunction: ISlashCommandFunc = async (interaction, options, client, 
         .setFields(
             { name: "Can Spawn In", value: intervalLeftString, inline: true },
             { name: "Max Time till Ball", value: `${maxMinutesParsed.hours}h ${maxMinutesParsed.minutes}m`, inline: true},
-            { name: "Spawn Chance", value: `~${(chance * 100).toFixed(2)}%`, inline: true},
+            { name: "Spawn Chance", value: `${(!certain) ? "~" : ""}${(chance * 100).toFixed(2)}%`, inline: true},
             { name: "Points to Spawn", value: `${lowerBoundPoints.toLocaleString()} - ${upperBoundPoints.toLocaleString()}`, inline: true },
             { name: "Cooldown Points", value: `${cooldown.Amount} message(s)`, inline: true },
         )

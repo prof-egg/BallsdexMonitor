@@ -5,7 +5,7 @@ import ballsdexConfig from "../../../config/ballsdex.json" assert { type: "json"
 import Util from "../../util/Util.js"
 
 const loggerID = "SpawnHandler" // Not in og code
-const SPAWN_CHANCE_RANGE = { LOWER_BOUND: 40, UPPER_BOUND: 55 }
+export const SPAWN_CHANCE_RANGE = { LOWER_BOUND: 40, UPPER_BOUND: 55 }
 
 /**
  * **COPY-PASTED DOC, NOT APPLICABLE TO JS TRANSLATION**
@@ -169,6 +169,25 @@ export class SpawnCooldown {
         })))].map((obj) => ({id: obj[0], name: obj[1]}))
     }
 
+    // public calcMessageScore(message: string, authorID: string): number {
+    //     let amount = 1
+    //     if (this.hasMemberCountPenalty())
+    //         amount /= 2
+    //     if (this.isMessageSpam(message))
+    //         amount /= 2
+    //     if (
+    //         this.hasNotEnoughUniqueChattersInCachePenalty() ||
+    //         this.authorHasNotEnoughContributionPenalty(authorID)
+    //     ) {
+    //         amount /= 2
+    //     }
+    //     return amount;
+    // }
+
+    public calcSpawnChanceForNextMessage(interaction: Discord.ChatInputCommandInteraction, messageScore: number): number {
+        return 1 / (SpawnManager.calcChanceBound(interaction, true) - this.amount + (1 - messageScore))
+    }
+
     public getAuthorMessages(authorID: string): CachedMessage[] {
         return this.messageCache.filter((msgCache) => msgCache.authorID == authorID)
     }
@@ -233,6 +252,7 @@ export class SpawnManager {
             this.cooldowns.set(guild.id, cooldown)
         }
 
+        // Delta is in seconds
         let delta = Math.floor((message.createdAt.getTime() - cooldown.Time.getTime()) / 1000)
 
         // # change how the threshold varies according to the member count, while nuking farm servers
@@ -313,6 +333,17 @@ export class SpawnManager {
         return null
     }
 
+    /**
+     * 
+     * @param guild 
+     * @param amount Amount of points we are waiting for
+     * @param chance The internal random number between 40 - 55
+     * @returns 
+     */
+    public static calcMinutesTillAmount(guild: Discord.Guild, amount: number, chance: number): number {
+        return Math.ceil((amount - chance) / -SpawnManager.getMultiplier(guild))
+    }
+
     public static canMessageBeProcessed(message: Discord.Message): boolean {
         return !message.author.bot
     }
@@ -340,8 +371,10 @@ export class SpawnManager {
         return multiplier
     }
 
+
+
     /**Returns -1 if no cooldown cached, and 0 if no guild from message or is actually 0 chance */
-    public static calcChance(interaction: Discord.ChatInputCommandInteraction, upperBound?: boolean, cooldownOverride?: SpawnCooldown): number {
+    public static calcChanceBound(interaction: Discord.ChatInputCommandInteraction, upperBound?: boolean, cooldownOverride?: SpawnCooldown): number {
 
         if (!interaction.guild) {
             Debug.logWarning("Called SpawnManager.calcChance() on a message that has no guild", loggerID)

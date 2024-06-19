@@ -52,7 +52,7 @@ const commandFunction: ISlashCommandFunc = async (interaction, options, client, 
         .setFields(
             { name: "Can Spawn In", value: intervalLeftString, inline: true },
             { name: "Guild Multiplier", value: `${SpawnManager.getMultiplier(guild).toLocaleString()}`, inline: true },
-            { name: "Points to Spawn", value: `${SpawnManager.calcChance(interaction, false, cooldown).toLocaleString()} - ${SpawnManager.calcChance(interaction, true, cooldown).toLocaleString()}`, inline: true },
+            { name: "Points to Spawn", value: `${SpawnManager.calcChanceBound(interaction, false, cooldown).toLocaleString()} - ${SpawnManager.calcChanceBound(interaction, true, cooldown).toLocaleString()}`, inline: true },
             { name: "Time Since Last Spawn", value: `${tslp.days}d ${tslp.hours}h ${tslp.minutes}m ${tslp.seconds}s`, inline: true },
             { name: "Guild Spam Messages", value: `${cooldown.getSpamMessageDetectedInCache()} message(s)`, inline: true },
             { name: "Cooldown Points", value: `${cooldown.Amount} message(s)`, inline: true },

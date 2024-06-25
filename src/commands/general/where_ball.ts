@@ -33,8 +33,8 @@ const commandFunction: ISlashCommandFunc = async (interaction, options, client, 
     let certain = true
     if (cooldownMilliseconds < 0 && cooldown.Amount >= lowerBoundPoints && cooldown.Amount < upperBoundPoints) {
         // Assuming next message will be worth 0.5 (FOR THIS SERVER ONLY)
-        certain = false
         chance = cooldown.calcSpawnChanceForNextMessage(interaction, 0.5)
+        certain = false
     }
     if (cooldown.Amount >= upperBoundPoints)
         chance = 1

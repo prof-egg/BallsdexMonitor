@@ -2,8 +2,7 @@
     "clientPresence": "Spamming",
     "error": {
         "query": {
-            "badLink": "Sorry! I couldn't find that link!",
-            "badFaq": "Sorry! I couldn't find that question!"
+            "badCountry": "Sorry! I couldn't find that country!"
         },
         "command": { 
             "processedNonExistentCommand": "Tried to process a command that has not been loaded into the command handler. This is likely due to a desync between registered commands and current command files. Try to run the refresh commands script to potentially solve the issue.",

@@ -12,6 +12,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "cheerio": "^1.0.0-rc.12",
     "discord.js": "^14.14.1",
     "dotenv": "^16.4.5",
     "parse-ms": "^4.0.0",

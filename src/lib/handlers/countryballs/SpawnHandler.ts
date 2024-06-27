@@ -94,7 +94,7 @@ export class SpawnCooldown {
         if (
             new Set(this.messageCache.map((cachedMessage) => cachedMessage.authorID)).size < 4 ||
             this.messageCache.filter((cachedMessage) => cachedMessage.authorID == message.author.id).length
-            / this.messageCache.maxLength < 0.4
+            / this.messageCache.maxLength > 0.4
         ) {
             amount /= 2
         }
@@ -204,9 +204,9 @@ export class SpawnCooldown {
         return this.messageCache.filter((cachedMessage) => this.isMessageSpam(cachedMessage.messageContent)).length
     }
 
-    public authorHasNotEnoughContributionPenalty(authorID: string): boolean {
+    public authorHasTooMuchContributionPenalty(authorID: string): boolean {
         return (this.messageCache.filter((cachedMessage) => cachedMessage.authorID == authorID).length
-        / this.messageCache.maxLength < 0.4)
+        / this.messageCache.maxLength > 0.4)
     }
 
     public hasNotEnoughUniqueChattersInCachePenalty(): boolean {

@@ -38,7 +38,7 @@ const commandFunction: ISlashCommandFunc = async (interaction, options, client, 
     let arePrimeYapperEligible = !cooldown.hasNotEnoughUniqueChattersInCachePenalty()
     let yapperIds = cooldown.getYappers().map((yapper) => yapper.id)
     let primeYappers = yapperIds.filter((authorID) => {
-        return !cooldown.authorHasNotEnoughContributionPenalty(authorID) && arePrimeYapperEligible
+        return !cooldown.authorHasTooMuchContributionPenalty(authorID) && arePrimeYapperEligible
     }).map((authorID) => {
         return `<@${authorID}>`
     })
@@ -57,7 +57,7 @@ const commandFunction: ISlashCommandFunc = async (interaction, options, client, 
             { name: "Guild Spam Messages", value: `${cooldown.getSpamMessageDetectedInCache()} message(s)`, inline: true },
             { name: "Cooldown Points", value: `${cooldown.Amount} message(s)`, inline: true },
             { name: "Guild MC Penalty", value: `${cooldown.hasMemberCountPenalty()}`, inline: true },
-            { name: "Author NEC Penalty", value: `${cooldown.authorHasNotEnoughContributionPenalty(interaction.user.id)}`, inline: true },
+            { name: "Author NEC Penalty", value: `${cooldown.authorHasTooMuchContributionPenalty(interaction.user.id)}`, inline: true },
             { name: "Guild NEUC Penalty", value: `${cooldown.hasNotEnoughUniqueChattersInCachePenalty()}`, inline: true },
             { name: "Prime Yappers", value: primeYappersString, inline: true },
             { name: "Author Yap Contribution", value: `${authorMessages.length} message(s)`, inline: true },

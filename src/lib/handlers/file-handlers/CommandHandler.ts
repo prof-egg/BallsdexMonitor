@@ -101,7 +101,7 @@ export default class CommandHandler<
      * @throws `DiscordAPIError` if invalid login token is provided
      * @see CommandHandler.cacheData
      */
-    public async refreshSlashCommandRegistry(clientToken?: string) {
+    public async refreshSlashCommandRegistry(clientToken?: string, homeGuild?: boolean) {
 
         if (clientToken) {
             var rest = new REST().setToken(clientToken) as REST
@@ -121,14 +121,22 @@ export default class CommandHandler<
                 {if (!command.hasTag(ECommandTags.DontRegister))
                     commandBodies.push(command.commandBuildData)}
 
-            Debug.logStartup(`Refreshing ${commandBodies.length} application (/) commands...`, loggerID)
+            Debug.logStartup(`Refreshing ${commandBodies.length} application (/) commands to ${(homeGuild == true) ? "guild" : "application"}...`, loggerID)
             
             // The put method is used to fully refresh all commands in the guild with the current set
             // Route methods return API 
-            const data = await rest.put(
-                Routes.applicationGuildCommands(clientconfig.id, clientconfig.homeGuild.id),
-                { body: commandBodies },
-            );
+            if (homeGuild == true) {
+                await rest.put(
+                    Routes.applicationGuildCommands(clientconfig.id, clientconfig.homeGuild.id),
+                    { body: commandBodies },
+                ); 
+            } else {
+                await rest.put(
+                    Routes.applicationCommands(clientconfig.id),
+                    { body: commandBodies },
+                ); 
+            }
+            
 
             Debug.log(`Successfully refreshed ${commandBodies.length} application (/) commands!`, loggerID, EColorEscape.CyanFG)
 

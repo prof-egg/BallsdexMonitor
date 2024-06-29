@@ -106,7 +106,6 @@ export class Random {
     private static validateNotNull(x: object) {
         if (x === null || x === undefined) 
             throw new TypeError("Argument must not be undefined")
-        
     }
 
     // throw an exception unless 0 <= lo <= hi <= length

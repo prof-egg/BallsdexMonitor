@@ -1,9 +1,6 @@
 import Discord , { Events } from "discord.js"
-import { ECommandTags } from "../lib/handlers/file-handlers/CommandHandler.js"
 import { IEventFunc } from "../lib/handlers/file-handlers/EventHandler.js"
-import Util from "../lib/util/Util.js"
 import messageConfig from "../config/messages.json" assert { type: "json" }
-import clientconfig from "../config/client.json" assert { type: "json" }
 import Debug from "../lib/util/Debug.js"
 import FHH from "../lib/handlers/HandlerHub.js"
 

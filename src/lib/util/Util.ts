@@ -72,9 +72,12 @@ export default class Util {
     }
 
     static isMessageBallsdexSpawnMessage(message: Discord.Message): boolean {
-        let ballsdexID = ballsdexConfig.ballsdexID
-        let channelID = ballsdexConfig.channelID
+
         let msg = ballsdexConfig.message
+        let ballsdexID = ballsdexConfig.ballsdexID
+        let channelID = ballsdexConfig.guilds.find((guild) => guild.guildID == message.guild?.id)?.ballsChannelID
+        
+        if (channelID == undefined) return false
     
         // Debug.log(`NEW MESSAGE: ${message.author.username}: "${message.content}"`, loggerID)
         // Debug.log(`Author is bot: ${message.author.bot}`, loggerID)

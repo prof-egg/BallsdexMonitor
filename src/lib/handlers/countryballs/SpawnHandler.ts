@@ -307,7 +307,7 @@ export class SpawnManager {
 
     public static async getLatestBallSpawn(guild: Discord.Guild): Promise<Discord.Message | null> {
         Debug.log("Getting latest ball spawn...", loggerID)
-        let ballsdexChannel = await guild.channels.fetch(ballsdexConfig.channelID) as Discord.GuildTextBasedChannel | null
+        let ballsdexChannel = await guild.channels.fetch(ballsdexConfig.guilds.find((g) => g.guildID == guild.id)?.ballsChannelID ?? "") as Discord.GuildTextBasedChannel | null
 
         // If error resort to current time
         if (!ballsdexChannel) {

@@ -125,19 +125,11 @@ export default class CommandHandler<
             
             // The put method is used to fully refresh all commands in the guild with the current set
             // Route methods return API 
-            if (application == true) {
-                await rest.put(
-                    Routes.applicationCommands(clientconfig.id),
-                    { body: commandBodies },
-                );  
-            } else {
-                await rest.put(
-                    Routes.applicationGuildCommands(clientconfig.id, clientconfig.homeGuild.id),
-                    { body: commandBodies },
-                );
-            }
+            const route = (application == true) ? 
+                Routes.applicationCommands(clientconfig.id) : 
+                Routes.applicationGuildCommands(clientconfig.id, clientconfig.homeGuild.id)
+            await rest.put( route, { body: commandBodies });  
             
-
             Debug.log(`Successfully refreshed ${commandBodies.length} application (/) commands!`, loggerID, EColorEscape.CyanFG)
 
         } catch (error) {

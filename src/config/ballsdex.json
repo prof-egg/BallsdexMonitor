@@ -1,5 +1,21 @@
 {
     "ballsdexID": "999736048596816014",
-    "channelID": "1250283378222039070",
-    "message": "A wild countryball appeared!"
+    "message": "A wild countryball appeared!",
+    "guilds": [
+        {
+            "guildID": "699680433721442314",
+            "guildName": "Jeff",
+            "ballsChannelID": "1250283378222039070"
+        },
+        {
+            "guildID": "1183134938963398697",
+            "guildName": "7 Retards",
+            "ballsChannelID": "1255001763208232990"
+        },
+        {
+            "guildID": "1064595909553422417",
+            "guildName": "Macro Server",
+            "ballsChannelID": "1254969320958853141"
+        }
+    ]
 }

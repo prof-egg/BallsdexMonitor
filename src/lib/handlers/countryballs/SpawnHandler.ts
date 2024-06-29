@@ -65,7 +65,7 @@ export class SpawnCooldown {
         // # its property is that, once the max length is reached (100 for us),
         // # the oldest element is removed, thus we only have the last 100 messages in memory
         this.messageCache.push(
-            new CachedMessage(message.content, message.author.id, message.author.displayName)
+            new CachedMessage(/*message.content, */message.author.id, message.author.displayName)
         )
 
         // More python code to deal with race conditions
@@ -200,9 +200,9 @@ export class SpawnCooldown {
         return this.guild.memberCount < 5 || this.guild.memberCount > 1000
     }
 
-    public getSpamMessageDetectedInCache(): number {
-        return this.messageCache.filter((cachedMessage) => this.isMessageSpam(cachedMessage.messageContent)).length
-    }
+    // public getSpamMessageDetectedInCache(): number {
+    //     return this.messageCache.filter((cachedMessage) => this.isMessageSpam(cachedMessage.messageContent)).length
+    // }
 
     public authorHasTooMuchContributionPenalty(authorID: string): boolean {
         return (this.messageCache.filter((cachedMessage) => cachedMessage.authorID == authorID).length
@@ -416,11 +416,11 @@ class MessageCache extends Array<CachedMessage> {
 }
 
 class CachedMessage {
-    public readonly messageContent: string
+    //public readonly messageContent: string
     public readonly authorID: string
     public readonly displayName: string // Not part of original cache
-    public constructor(messageContent: string, authorID: string, displayName: string) {
-        this.messageContent = messageContent
+    public constructor(/*messageContent: string, */authorID: string, displayName: string) {
+        //this.messageContent = messageContent
         this.authorID = authorID
         this.displayName = displayName
     }

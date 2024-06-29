@@ -27,9 +27,9 @@ const commandFunction: ISlashCommandFunc = async (interaction, options, client, 
         return { 
             name: yapper.name, 
             msgLength: cooldown.getAuthorMessages(yapper.id).length, 
-            spamLength: cooldown.getAuthorMessages(yapper.id).filter((cacheMsg) => {
-                return cooldown.isMessageSpam(cacheMsg.messageContent)
-            }).length
+            // spamLength: cooldown.getAuthorMessages(yapper.id).filter((cacheMsg) => {
+            //     return cooldown.isMessageSpam(cacheMsg.messageContent)
+            // }).length
         }
     }).sort((a, b) => b.msgLength - a.msgLength)
     
@@ -39,7 +39,8 @@ const commandFunction: ISlashCommandFunc = async (interaction, options, client, 
         .setFields(
             { name: "Yappers", value: yapDetails.map((yapper) => yapper.name).join("\n"), inline: true },
             { name: "Contribution", value: `${yapDetails.map((yapper) => yapper.msgLength).join("\n")}`, inline: true },
-            { name: "Spam", value: `${yapDetails.map((yapper) => yapper.spamLength).join("\n")}`, inline: true },
+            // { name: "Spam", value: `${yapDetails.map((yapper) => yapper.spamLength).join("\n")}`, inline: true },
+            { name: "Spam", value: `Disabled`, inline: true },
         )
         .setFooter({ text: `Message Cache: ${cooldown.MessageCache.length}/${cooldown.MessageCache.maxLength}`})
 

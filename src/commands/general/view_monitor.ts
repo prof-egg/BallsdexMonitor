@@ -54,14 +54,16 @@ const commandFunction: ISlashCommandFunc = async (interaction, options, client, 
             { name: "Guild Multiplier", value: `${SpawnManager.getMultiplier(guild).toLocaleString()}`, inline: true },
             { name: "Points to Spawn", value: `${SpawnManager.calcChanceBound(interaction, false, cooldown).toLocaleString()} - ${SpawnManager.calcChanceBound(interaction, true, cooldown).toLocaleString()}`, inline: true },
             { name: "Time Since Last Spawn", value: `${tslp.days}d ${tslp.hours}h ${tslp.minutes}m ${tslp.seconds}s`, inline: true },
-            { name: "Guild Spam Messages", value: `${cooldown.getSpamMessageDetectedInCache()} message(s)`, inline: true },
+            // { name: "Guild Spam Messages", value: `${cooldown.getSpamMessageDetectedInCache()} message(s)`, inline: true },
+            { name: "Guild Spam Messages", value: `Disabled`, inline: true },
             { name: "Cooldown Points", value: `${cooldown.Amount} message(s)`, inline: true },
             { name: "Guild MC Penalty", value: `${cooldown.hasMemberCountPenalty()}`, inline: true },
             { name: "Author NEC Penalty", value: `${cooldown.authorHasTooMuchContributionPenalty(interaction.user.id)}`, inline: true },
             { name: "Guild NEUC Penalty", value: `${cooldown.hasNotEnoughUniqueChattersInCachePenalty()}`, inline: true },
             { name: "Prime Yappers", value: primeYappersString, inline: true },
             { name: "Author Yap Contribution", value: `${authorMessages.length} message(s)`, inline: true },
-            { name: "Author Spam Contribution", value: `${authorMessages.filter((msgCache) => cooldown.isMessageSpam(msgCache.messageContent)).length} message(s)`, inline: true },
+            // { name: "Author Spam Contribution", value: `${authorMessages.filter((msgCache) => cooldown.isMessageSpam(msgCache.messageContent)).length} message(s)`, inline: true },
+            { name: "Author Spam Contribution", value: `Disabled`, inline: true },
         )
         .setFooter({ text: `Message Cache: ${cooldown.MessageCache.length}/${cooldown.MessageCache.maxLength}`})
 

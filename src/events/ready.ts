@@ -19,12 +19,12 @@ const eventFunction: IEventFunc<typeof eventType> = async (client, loggerID, rea
 
     // Fill spawncooldown message cache for guild
     for (let i = 0; i < ballsdexConfig.guilds.length; i++) {
-        Debug.log(`Setting up server ${i + 1}...`)
+        Debug.log(`Setting up server ${i + 1}...`, loggerID)
         // Get guild obj from id
         try {
             var guild = await client.guilds.fetch(ballsdexConfig.guilds[i].guildID)
         } catch{
-            Debug.log(`Not in server, aborting...`)
+            Debug.log(`Not in server, aborting...`, loggerID)
             continue
         }
 
@@ -37,7 +37,7 @@ const eventFunction: IEventFunc<typeof eventType> = async (client, loggerID, rea
             await cooldown?.resetMessageCache(guild, msg) 
             SpawnManager.monitorActive = true
         } else {
-            Debug.logWarning("Unable to activate monitor", "ReadyEvent")
+            Debug.logWarning("Unable to activate monitor", loggerID)
         }
     }
     

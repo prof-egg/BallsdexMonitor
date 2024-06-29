@@ -7,7 +7,7 @@ export function refreshCommands(): Promise<void> {
     return new Promise(async (resolve) => {
         dotenv.config();
         await FHH.CommandHandler.loadSlashCommandFolder("dist/commands")
-        await FHH.CommandHandler.refreshSlashCommandRegistry(process.env.CLIENT_LOGIN_TOKEN)
+        await FHH.CommandHandler.refreshSlashCommandRegistry(process.env.CLIENT_LOGIN_TOKEN, true)
         resolve()
     })
 }

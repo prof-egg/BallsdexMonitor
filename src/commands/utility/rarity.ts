@@ -1,7 +1,8 @@
-import Discord from "discord.js"
+import Discord, { ColorResolvable } from "discord.js"
 import Util from "../../lib/util/Util.js";
 import { ECommandTags, ISlashCommandAutocompleteFunc, ISlashCommandFunc } from "../../lib/handlers/file-handlers/CommandHandler.js";
 import RarityScraper from "../../lib/handlers/countryballs/RarityScraper.js";
+import colorconfig from "../../config/colors.json" assert { type: "json" }
 
 const queryOption = "query"
 
@@ -19,7 +20,20 @@ const commandFunction: ISlashCommandFunc = async (interaction, options, client, 
     // substitute an error message as a fake faq
     ?? { name: "Bad Query", rarity: -1 }
     
-    interaction.reply({ embeds: [Util.embedMessage(`**${rarityEntry.name}** rarity: ${rarityEntry.rarity}`)] })
+    const weightedMiddle = 85
+    const lowestRarity = RarityScraper.getRarityList[RarityScraper.getRarityList.length - 1].rarity
+    const highestRarity = RarityScraper.getRarityList[0].rarity
+    const lerpValue = 1 - Util.reverseLerpWeighted(highestRarity, lowestRarity, rarityEntry.rarity, weightedMiddle)
+    console.log(lerpValue, Util.reverseLerp(lowestRarity, highestRarity, rarityEntry.rarity))
+    // for (let i = 0; i < RarityScraper.getRarityList.length; i++)
+    //     console.log(Util.reverseLerpWeighted(highestRarity, lowestRarity, RarityScraper.getRarityList.length - i, weightedMiddle))
+    let color = Util.lerpHexColor("#FF0000", "#00FF00", lerpValue);
+    if (rarityEntry.rarity == -1) color = "#000000"
+    if (rarityEntry.rarity == 1) color = colorconfig.main
+
+    const embed = Util.embedMessage(`**${rarityEntry.name}**: ${rarityEntry.rarity}`).setColor(color as ColorResolvable)
+
+    interaction.reply({ embeds: [embed] })
 }
 
 const autocomplete: ISlashCommandAutocompleteFunc = async (interaction, options, client, loggerID) => {

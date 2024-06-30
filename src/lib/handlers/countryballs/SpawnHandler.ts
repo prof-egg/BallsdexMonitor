@@ -112,7 +112,7 @@ export class SpawnCooldown {
     private lastHandledMessage: Discord.Message | null = null
 
     public async resetMessageCache(guild: Discord.Guild, lastSpawnMessage: Discord.Message): Promise<void> {
-        Debug.log("Resetting message cache...", loggerID)
+        Debug.log(`Resetting message cache (${guild.name} | ${guild.id})...`, loggerID)
 
         this.messageCache = new MessageCache(100)
 
@@ -160,6 +160,7 @@ export class SpawnCooldown {
                 this.increase(postSpawnMessages[i])
 
         // Fill message cache from fetched messages
+        Debug.log(`Guild score: ${this.amount}`, loggerID)
         Debug.log("Reset message cache complete!", loggerID)
     }
 

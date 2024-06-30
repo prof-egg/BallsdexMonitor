@@ -131,4 +131,20 @@ export default class Util {
         const t = (interpolatedValue - start) / (end - start);
         return t;
     }
+
+    public static reverseLerpWeighted(min: number, max: number, value: number, middle: number): number {
+        if (value <= min) return 0;
+        if (value >= max) return 1;
+    
+        // Calculate the normalized position of the middle value
+        const middleNormalized = (middle - min) / (max - min);
+    
+        if (value <= middle) {
+            // If value is in the lower half, map it linearly between min and middle
+            return (value - min) / (middle - min) * middleNormalized;
+        } else {
+            // If value is in the upper half, map it linearly between middle and max
+            return middleNormalized + (value - middle) / (max - middle) * (1 - middleNormalized);
+        }
+    }
 }

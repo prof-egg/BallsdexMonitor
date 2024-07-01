@@ -24,9 +24,6 @@ const commandFunction: ISlashCommandFunc = async (interaction, options, client, 
     const lowestRarity = RarityScraper.getRarityList[RarityScraper.getRarityList.length - 1].rarity
     const highestRarity = RarityScraper.getRarityList[0].rarity
     const lerpValue = 1 - Util.reverseLerpWeighted(highestRarity, lowestRarity, rarityEntry.rarity, weightedMiddle)
-    console.log(lerpValue, Util.reverseLerp(lowestRarity, highestRarity, rarityEntry.rarity))
-    // for (let i = 0; i < RarityScraper.getRarityList.length; i++)
-    //     console.log(Util.reverseLerpWeighted(highestRarity, lowestRarity, RarityScraper.getRarityList.length - i, weightedMiddle))
     let color = Util.lerpHexColor("#FF0000", "#00FF00", lerpValue);
     if (rarityEntry.rarity == -1) color = "#000000"
     if (rarityEntry.rarity == 1) color = colorconfig.main

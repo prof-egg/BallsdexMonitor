@@ -11,7 +11,7 @@ export const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIn
 const loggerID = path.parse(import.meta.url).base
 
 async function start() {
-    
+
     // Broadcast start message
     Debug.logStartup("starting client...", loggerID)
 
